@@ -9,7 +9,7 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: 'plum', padding: 60 }}>
         <Text>Hello world</Text>
-        <Button title='Bấm vào đây' onPress={ () => {console.log('Nút được bấm')} }></Button>
+        <Button title='Bấm vào đây abc' onPress={ () => {console.log('Nút được bấm')} }></Button>
     </View>
   );
 }
