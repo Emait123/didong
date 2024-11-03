@@ -3,7 +3,7 @@ import { FlatList, StyleSheet, TextInput, View, Text, Alert, Pressable } from 'r
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
-  const [notes, setNotes] = useState([{id: '1', text: 'abc'}]);
+  const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState('');
 
   const saveNote = async () => {
@@ -52,7 +52,7 @@ export default function HomeScreen() {
 
   const renderItem = ({ item }) => (
     <Pressable
-      onPress={() => navigation.navigate('Note', { id: item.id })}
+      // onPress={() => navigation.navigate('Note', { id: item.id })}
     >
       <Text>{item.text}</Text>
       <Pressable onPress={() => deleteNote(item.id)}>
