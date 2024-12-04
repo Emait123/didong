@@ -2,6 +2,7 @@ import { View, Text, FlatList, StyleSheet, useColorScheme, Pressable } from 'rea
 import React, { useState, useEffect } from 'react';
 import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
+import {Picker} from '@react-native-picker/picker';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,10 +10,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
   const darkMode = useColorScheme() !== 'dark'
   const [dsTin, setDsTin] = useState([]);
+  const [loaiTin, setLoaiTin] = useState('');
 
-  useEffect(() => {
-    // Fetch data when the component mounts
-    const newsList = fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fvnexpress.net%2Frss%2Fthe-gioi.rss')
+  const theLoaiAPI: { [key: string]: string } = {
+    'trangChu': 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fvnexpress.net%2Frss%2Ftin-moi-nhat.rss',
+    'theGioi': 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fvnexpress.net%2Frss%2Fthe-gioi.rss',
+    'thoiSu': 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fvnexpress.net%2Frss%2Fthoi-su.rss',
+    'giaiTri': 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fvnexpress.net%2Frss%2Fgiai-tri.rss',
+  };
+
+  function getDS(theLoai:string) {
+    let link = theLoaiAPI[theLoai];
+    fetch(link)
       .then((response) => response.json()) // Parse JSON response
       .then((res) => {
         // console.log(res);
@@ -28,6 +37,11 @@ export default function HomeScreen() {
       .catch((error) => {
         console.error(error);
       });
+  }
+
+  useEffect(() => {
+    // Fetch data when the component mounts
+    getDS('trangChu');
   }, []);
 
   const blurhash =
@@ -47,8 +61,8 @@ export default function HomeScreen() {
           <Image
             style={styles.image}
             source={item.img}
-            placeholder={{ blurhash }}
-            contentFit='cover'
+            // placeholder={{ blurhash }}
+            // contentFit='cover'
             // transition={1000}
           />
         </Pressable>
@@ -61,6 +75,18 @@ export default function HomeScreen() {
       <Text style={[darkMode ? styles.whiteText : styles.darkText, styles.header]}>
         Tin tức
       </Text>
+      <Picker
+        selectedValue={loaiTin}
+        onValueChange={(itemValue, itemIndex) => {
+          setLoaiTin(itemValue);
+          getDS(itemValue);
+        }
+        }>
+        <Picker.Item label="Trang chủ" value="trangChu" />
+        <Picker.Item label="Thế giới" value="theGioi" />
+        <Picker.Item label="Thời sự" value="thoiSu" />
+        <Picker.Item label="Giải trí" value="giaiTri" />
+      </Picker>
       <View style={styles.container}>
         <FlatList
           data={dsTin}

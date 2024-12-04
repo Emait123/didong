@@ -1,4 +1,4 @@
-import { View, Text, FlatList, StyleSheet, useColorScheme, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, useColorScheme, Pressable } from 'react-native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter, useLocalSearchParams, useGlobalSearchParams } from 'expo-router';
@@ -8,9 +8,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ArticleScreen() {
   const darkMode = useColorScheme() !== 'dark'
-
+  const router = useRouter();
   const [article, setArticle] = useState({title:'', description:'', content:'', img: []});
-  const { id } = useGlobalSearchParams<{ id: string }>();
+  const [url, setURL] = useState('');
+  let { id } = useGlobalSearchParams<{ id: string }>();
+  // const params = useGlobalSearchParams();
 
   useFocusEffect(
     useCallback(() => {
@@ -45,50 +47,28 @@ export default function ArticleScreen() {
     }, [])
   );
 
-//   useEffect(() => {
-//     console.log(url);
-//     let formData = new FormData();
-//     formData.append('url', decodeURIComponent(url));
-//     // Fetch data when the component mounts
-//     fetch('https://emait.click/public/crawl', {
-//         method: 'POST',
-//         body: formData,
-//     })
-//       .then((response) => response.json()) // Parse JSON response
-//       .then((res) => {
-//         console.log(res);
-//         let data = {
-//             title: res.title,
-//             description: res.description,
-//             content: res.content,
-//         };
-//         setArticle(data);
-//       })
-//       .catch((error) => {
-//         console.error(error);
-//       });
-//   }, []);
-
   const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <Text style={[darkMode ? styles.whiteText : styles.darkText, styles.header]}>
-        {article.title}
-      </Text>
+      <ScrollView>
+        <Text style={[darkMode ? styles.whiteText : styles.darkText, styles.header]}>
+          {article.title}
+        </Text>
 
-      <Text style={[darkMode ? styles.whiteText : styles.darkText]}>
-        {article.description}
-      </Text>
+        <Text style={[darkMode ? styles.whiteText : styles.darkText]}>
+          {article.description}
+        </Text>
 
-      {article.img.length > 0 ? (
-        article.img.map(r => <Image source={{ uri: r }} style={styles.image} />)
-        ) : <Text></Text>}
+        {article.img.length > 0 ? (
+          article.img.map(r => <Image key={r} source={{ uri: r }} style={styles.image} />)
+          ) : <Text></Text>}
 
-      <Text style={[darkMode ? styles.whiteText : styles.darkText]}>
-        {article.content}
-      </Text>
+        <Text style={[darkMode ? styles.whiteText : styles.darkText]}>
+          {article.content}
+        </Text>
+      </ScrollView>
     </SafeAreaView>
   );
 }
