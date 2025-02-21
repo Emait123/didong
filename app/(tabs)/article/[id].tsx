@@ -1,18 +1,18 @@
-import { View, Text, ScrollView, StyleSheet, useColorScheme, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, useColorScheme, Button, Share, Alert } from 'react-native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Image } from 'expo-image';
-import { useFocusEffect, useRouter, useLocalSearchParams, useGlobalSearchParams } from 'expo-router';
+import { useFocusEffect, useRouter, useGlobalSearchParams } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function ArticleScreen() {
-  const darkMode = useColorScheme() !== 'dark'
+  const darkMode = useColorScheme() === 'dark'
   const router = useRouter();
   const [article, setArticle] = useState({title:'', description:'', content:'', img: []});
   const [url, setURL] = useState('');
   let { id } = useGlobalSearchParams<{ id: string }>();
-  // const params = useGlobalSearchParams();
 
   useFocusEffect(
     useCallback(() => {
@@ -27,6 +27,7 @@ export default function ArticleScreen() {
           .then((response) => response.json()) // Parse JSON response
           .then((res) => {
             if (res.result) {
+              console.log(res)
               let data = {
                   title: res.title,
                   description: res.description,
@@ -42,7 +43,13 @@ export default function ArticleScreen() {
 
         // Return function is invoked whenever the route gets out of focus.
         return () => {
-            setArticle({title:'', description:'', content:'', img:[]});
+          // const params = {...useGlobalSearchParams()};
+          // delete params.id;
+          // let {params} = useGlobalSearchParams();
+          // console.log(params)
+          // router.setParams({id : undefined});
+          // console.log('called');
+          // setArticle({title:'', description:'', content:'', img:[]});
         };
     }, [])
   );
@@ -50,14 +57,59 @@ export default function ArticleScreen() {
   const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
+  // const shareArticle = () => {
+  //   Share.share({
+  //     message: article.title
+  //   });
+  // }
+
+  const shareArticle = async () => {
+    try {
+      const result = await Share.share({
+        message: article.title,
+      });
+  
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log('Shared with activity type:', result.activityType);
+        } else {
+          console.log('Shared successfully');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Share dismissed');
+      }
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const saveArticle = async () => {
+    if (id.trim() === '') {
+      Alert.alert('Error', 'Ghi chú không được rỗng!');
+      return;
+    }
+
+    const note = {
+      id: Date.now().toString(),
+      url: id,
+    };
+    console.log(note)
+
+    try {
+      await AsyncStorage.setItem(note.id, JSON.stringify(note));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <SafeAreaView style={{flex: 1}}>
-      <ScrollView>
-        <Text style={[darkMode ? styles.whiteText : styles.darkText, styles.header]}>
+      <ScrollView style={styles.container}>
+        <Text style={[styles.darkText, styles.header]}>
           {article.title}
         </Text>
 
-        <Text style={[darkMode ? styles.whiteText : styles.darkText]}>
+        <Text style={[styles.darkText, styles.contentText]}>
           {article.description}
         </Text>
 
@@ -65,9 +117,15 @@ export default function ArticleScreen() {
           article.img.map(r => <Image key={r} source={{ uri: r }} style={styles.image} />)
           ) : <Text></Text>}
 
-        <Text style={[darkMode ? styles.whiteText : styles.darkText]}>
+        <Text style={[styles.darkText, styles.contentText]}>
           {article.content}
         </Text>
+        <View style={styles.shareButton}>
+          <Button onPress={shareArticle} title="Chia sẻ" />
+        </View>
+        <View style={styles.shareButton}>
+          <Button onPress={saveArticle} title="Lưu" />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -75,10 +133,15 @@ export default function ArticleScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
-    // flexDirection: 'row',
-    // padding: 8
+    padding: 8
+  },
+  shareButton : {
+    backgroundColor: 'blue', 
+    borderRadius: 8,       
+    paddingVertical: 10,  
+    paddingHorizontal: 20, 
+    elevation: 5,
+    margin: 10,
   },
   header: {
     fontSize: 24,
@@ -104,8 +167,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
-  card_header: {
-
+  contentText : {
+    fontFamily: 'Georgia',
+    // lineHeight: 2,
+    fontSize: 20,
   },
   image: {
     flex: 1,

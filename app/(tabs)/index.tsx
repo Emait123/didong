@@ -20,17 +20,18 @@ export default function HomeScreen() {
   };
 
   function getDS(theLoai:string) {
+    // router.setParams({id : undefined});
     let link = theLoaiAPI[theLoai];
     fetch(link)
       .then((response) => response.json()) // Parse JSON response
       .then((res) => {
-        // console.log(res);
+        // console.log(res.items)
         const news = res.items.map( (data) => ({ 
           id: encodeURIComponent(data['guid']), 
           title: data['title'], 
           pubDate: data['pubDate'], 
-          description: data['description'].replace(/<[^>]*>/g, ''), //bỏ các tag html
-          img: data.enclosure.link.replace(/amp;/g, '')
+          description: data?.description?.replace(/<[^>]*>/g, '') ?? '', //bỏ các tag html
+          img: data.enclosure.link?.replace(/amp;/g, '') ?? ''
         }));
         setDsTin(news);
       })
@@ -72,7 +73,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <Text style={[darkMode ? styles.whiteText : styles.darkText, styles.header]}>
+      <Text style={[styles.header]}>
         Tin tức
       </Text>
       <Picker
@@ -102,6 +103,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    backgroundColor: 'lightgray'
     // flexDirection: 'row',
     // padding: 8
   },

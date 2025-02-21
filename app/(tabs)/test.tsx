@@ -54,7 +54,7 @@ export default function HomeScreen() {
     <Pressable
       // onPress={() => navigation.navigate('Note', { id: item.id })}
     >
-      <Text>{item.text}</Text>
+      <Text>{item.url}</Text>
       <Pressable onPress={() => deleteNote(item.id)}>
         <Text>Delete</Text>
       </Pressable>
